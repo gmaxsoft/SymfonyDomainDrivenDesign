@@ -50,6 +50,72 @@ Szczegóły konfiguracji: `config/packages/doctrine.yaml`, `config/packages/mess
 
 Opcjonalnie w repozytorium: **Docker Compose** (`compose.yaml`, `compose.override.yaml`) — do uruchomienia PostgreSQL lub innych usług lokalnie.
 
+## Struktura projektu
+
+Poniżej główne katalogi repozytorium (bez `vendor/`, generowanych plików w `var/cache` itp.):
+
+```
+.
+├── .github/workflows/     # GitHub Actions (CI)
+├── bin/                   # Punkt wejścia konsoli: console
+├── config/                # Konfiguracja Symfony (bundles, services, routes, packages)
+├── migrations/            # Migracje Doctrine (wynik bin/console make:migration)
+├── public/                # Document root WWW (index.php)
+├── src/
+│   ├── Contexts/         # Bounded contexts (DDD)
+│   ├── Controller/       # Puste miejsce / placeholder Symfony (logika HTTP w Contexts/*/UserInterface)
+│   ├── Entity/           # Placeholder — encje domenowe leżą w Contexts/*/Domain
+│   ├── Repository/       # Placeholder — repozytoria w Contexts/*/Infrastructure
+│   └── Kernel.php        # Kernel aplikacji Symfony
+├── var/                  # Cache Symfony, logi, pliki pomocnicze (katalog w .gitignore)
+├── compose.yaml          # Docker Compose (opcjonalnie)
+├── compose.override.yaml # Lokalne nadpisania Compose
+└── (pliki główne: composer.json, psalm.xml, .php-cs-fixer.dist.php, .env*, README, LICENSE)
+```
+
+### Opis katalogów (poziom repozytorium)
+
+| Katalog / plik | Rola |
+|----------------|------|
+| `.github/` | Definicje CI/CD (np. workflow sprawdzający styl i Psalm). |
+| `bin/` | Skrypt `console` — wszystkie komendy `php bin/console …`. |
+| `config/` | `bundles.php`, `services.yaml`, `routes.yaml`, `packages/*.yaml` — DI, routing, Messenger, Doctrine itd. |
+| `migrations/` | Wersjonowany schemat bazy (Doctrine Migrations). |
+| `public/` | Katalog serwowany przez serwer HTTP; jedyny publiczny front kontrolowany przez framework. |
+| `src/` | Kod aplikacji (poniżej szczegóły `Contexts/`). |
+| `var/` | Artefakty środowiskowe: cache Symfony, logi, baza SQLite jeśli używasz lokalnie ścieżki pod `var/`. |
+| `vendor/` | Zależności Composer (instalowane lokalnie, nie commitowane). |
+
+### `src/Contexts/` — konteksty i warstwy
+
+Każdy **bounded context** ma ten sam układ warstw:
+
+```
+src/Contexts/<NazwaKontekstu>/
+├── Application/      # Komendy, zapytania, handlery, fasady aplikacyjne (np. IdentityApplicationService)
+├── Domain/           # Model domenowy: agregaty, VO, zdarzenia, interfejsy repozytoriów
+├── Infrastructure/   # Adaptery: Doctrine, integracje zewnętrzne, kod „przy frameworku”
+└── UserInterface/    # Wejścia: Http/, CLI/ — kontrolery, komendy konsoli
+```
+
+| Ścieżka | Opis |
+|---------|------|
+| `Shared/Application/Command`, `…/Query` | Wspólne interfejsy znacznikowe dla komend i zapytań. |
+| `Shared/Domain/` | Wspólne typy (np. `Email`, zdarzenia bazowe, kontrakty domenowe bez logiki Identity). |
+| `Shared/Infrastructure/` | Wspólne adaptery infrastruktury (np. `KernelEnvironment`). |
+| `Shared/UserInterface/Http/` | Wspólne endpointy techniczne (np. `/health`). |
+| `Identity/Application/` | Przypadki użycia Identity: rejestracja (`RegisterUser`), odczyt użytkownika (`GetUserByEmail`). |
+| `Identity/Domain/User/` | Agregat `User`, `UserId`, `UserRegistered`, `UserRepositoryInterface`. |
+| `Identity/Infrastructure/Persistence/` | `DoctrineUserRepository` — implementacja portu repozytorium. |
+| `Identity/UserInterface/Http/`, `…/CLI/` | API HTTP i komenda `identity:user:register`. |
+
+### Konfiguracja jakości kodu (w katalogu głównym)
+
+| Plik | Rola |
+|------|------|
+| `psalm.xml` | Analiza statyczna (Poziom błędów, plugin Symfony, cache w `var/cache/psalm`). |
+| `.php-cs-fixer.dist.php` | Reguły formatowania kodu (m.in. @Symfony + `declare_strict_types`). |
+
 ## Wymagania
 
 - PHP **8.1** lub nowszy (m.in. rozszerzenia `ctype`, `iconv`; dla Doctrine zwykle `pdo_pgsql` / `pdo_mysql` / `pdo_sqlite`).
