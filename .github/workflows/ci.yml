@@ -24,7 +24,7 @@ jobs:
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: '8.1'
+                  php-version: '8.3'
                   extensions: ctype, dom, iconv, json, libxml, mbstring, pdo_sqlite, simplexml, tokenizer, xml
                   coverage: none
                   tools: composer:v2
@@ -33,9 +33,9 @@ jobs:
               uses: actions/cache@v4
               with:
                   path: ~/.composer/cache
-                  key: composer-${{ runner.os }}-8.1-${{ hashFiles('composer.lock') }}
+                  key: composer-${{ runner.os }}-8.3-${{ hashFiles('composer.lock') }}
                   restore-keys: |
-                      composer-${{ runner.os }}-8.1-
+                      composer-${{ runner.os }}-8.3-
 
             - name: Install dependencies
               run: composer install --prefer-dist --no-progress --no-interaction

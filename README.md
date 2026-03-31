@@ -39,7 +39,7 @@ Szczegóły konfiguracji: `config/packages/doctrine.yaml`, `config/packages/mess
 
 | Obszar | Technologie |
 |--------|-------------|
-| Język / runtime | PHP **≥ 8.1** |
+| Język / runtime | PHP **≥ 8.3** |
 | Framework | **Symfony 6.4** (FrameworkBundle, Console, Runtime, Yaml, Dotenv) |
 | Persystencja | **Doctrine ORM 3**, DBAL, **Doctrine Migrations** |
 | Komunikacja w aplikacji | **Symfony Messenger** (magistrale command/query, transport synchroniczny) |
@@ -118,7 +118,7 @@ src/Contexts/<NazwaKontekstu>/
 
 ## Wymagania
 
-- PHP **8.1** lub nowszy (m.in. rozszerzenia `ctype`, `iconv`; dla Doctrine zwykle `pdo_pgsql` / `pdo_mysql` / `pdo_sqlite`).
+- PHP **8.3** lub nowszy (minimalna wersja wynika z `composer.lock`, m.in. Doctrine DBAL 4.x oraz narzędzia dev). Rozszerzenia: `ctype`, `iconv`, `dom`, `json`, `mbstring`; dla bazy: `pdo_pgsql` / `pdo_mysql` / `pdo_sqlite`.
 - [Composer](https://getcomposer.org/)
 - Baza danych zgodna z `DATABASE_URL` (np. PostgreSQL, SQLite do szybkich testów).
 
