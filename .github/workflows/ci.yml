@@ -1,0 +1,53 @@
+name: CI
+
+on:
+    push:
+        branches: [main, master]
+    pull_request:
+
+concurrency:
+    group: ci-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    quality:
+        runs-on: ubuntu-latest
+        env:
+            APP_ENV: test
+            APP_DEBUG: '0'
+            APP_SECRET: ci-ci-ci-ci-ci-ci-ci-ci-ci-ci-ci-ci-cici
+            DATABASE_URL: sqlite:///:memory:
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.1'
+                  extensions: ctype, dom, iconv, json, libxml, mbstring, pdo_sqlite, simplexml, tokenizer, xml
+                  coverage: none
+                  tools: composer:v2
+
+            - name: Cache Composer
+              uses: actions/cache@v4
+              with:
+                  path: ~/.composer/cache
+                  key: composer-${{ runner.os }}-8.1-${{ hashFiles('composer.lock') }}
+                  restore-keys: |
+                      composer-${{ runner.os }}-8.1-
+
+            - name: Install dependencies
+              run: composer install --prefer-dist --no-progress --no-interaction
+
+            - name: PHP CS Fixer (dry-run)
+              run: composer cs-check
+
+            - name: Psalm
+              run: composer psalm -- --no-cache
+
+            - name: Lint Symfony container
+              run: php bin/console lint:container --no-debug
+
+            - name: Lint YAML configuration
+              run: php bin/console lint:yaml config
