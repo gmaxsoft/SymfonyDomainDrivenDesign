@@ -1,0 +1,7 @@
+shared_http:
+    resource: ../src/Contexts/Shared/UserInterface/Http/
+    type: attribute
+
+identity_http:
+    resource: ../src/Contexts/Identity/UserInterface/Http/
+    type: attribute

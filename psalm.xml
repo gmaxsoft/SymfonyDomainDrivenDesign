@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<psalm
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    errorLevel="6"
+    phpVersion="8.1"
+    resolveFromConfigFile="true"
+    findUnusedBaselineEntry="true"
+    findUnusedCode="false"
+    cacheDirectory="var/cache/psalm"
+>
+    <projectFiles>
+        <directory name="src"/>
+        <ignoreFiles>
+            <directory name="vendor"/>
+        </ignoreFiles>
+    </projectFiles>
+
+    <plugins>
+        <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin"/>
+    </plugins>
+
+    <issueHandlers>
+        <!-- Doctrine hydrates aggregates; constructor is not used for persistence. -->
+        <PropertyNotSetInConstructor>
+            <errorLevel type="suppress">
+                <directory name="src/Contexts"/>
+            </errorLevel>
+        </PropertyNotSetInConstructor>
+        <!-- #[Override] is PHP 8.3+; this project targets PHP 8.1. -->
+        <MissingOverrideAttribute errorLevel="suppress"/>
+    </issueHandlers>
+</psalm>
