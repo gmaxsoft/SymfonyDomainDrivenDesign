@@ -16,7 +16,7 @@ jobs:
             APP_ENV: test
             APP_DEBUG: '0'
             APP_SECRET: ci-ci-ci-ci-ci-ci-ci-ci-ci-ci-ci-ci-cici
-            DATABASE_URL: sqlite:///:memory:
+            DATABASE_URL: 'sqlite:///:memory:'
 
         steps:
             - uses: actions/checkout@v4
